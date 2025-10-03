@@ -15,7 +15,7 @@ def search():
         return jsonify({"error": "Missing keyword"}), 400
 
     try:
-        url = f"https://catalog.roblox.com/v1/search/items?limit=20&keyword={keyword}"
+        url = f"https://catalog.roblox.com/v1/search/items?limit=10&keyword={keyword}"
         response = requests.get(url)
         response.raise_for_status()
 
