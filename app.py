@@ -15,14 +15,15 @@ def search():
         return jsonify({"error": "Missing keyword"}), 400
 
     try:
-        # Query Roblox catalog with proper headers
         url = f"https://catalog.roblox.com/v1/search/items?limit=20&keyword={keyword}"
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-        }
-        response = requests.get(url, headers=headers, timeout=5)
+        response = requests.get(url)
         response.raise_for_status()
-        data = response.json()
+
+        try:
+            data = response.json()
+        except Exception as json_err:
+            print("JSON decode error. Response text:", response.text)
+            raise json_err
 
         results = []
         for item in data.get("data", []):
@@ -34,6 +35,10 @@ def search():
                 })
 
         return jsonify({"results": results})
+
+    except Exception as e:
+        print("Error fetching catalog:", e)
+        return jsonify({"error": "Failed to fetch Roblox catalog"}), 500
 
     except requests.exceptions.RequestException as e:
         print("HTTP request failed:", e)
