@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import requests
+import os
 
 app = Flask(__name__)
 
@@ -14,13 +15,15 @@ def search():
         return jsonify({"error": "Missing keyword"}), 400
 
     try:
-        # Query Roblox catalog
+        # Query Roblox catalog with proper headers
         url = f"https://catalog.roblox.com/v1/search/items?limit=20&keyword={keyword}"
-        response = requests.get(url)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+        }
+        response = requests.get(url, headers=headers, timeout=5)
         response.raise_for_status()
         data = response.json()
 
-        # Filter assets and build safe results
         results = []
         for item in data.get("data", []):
             if item.get("id") and item.get("itemType") == "Asset":
@@ -32,13 +35,13 @@ def search():
 
         return jsonify({"results": results})
 
+    except requests.exceptions.RequestException as e:
+        print("HTTP request failed:", e)
+        return jsonify({"error": "Failed to fetch Roblox catalog"}), 500
     except Exception as e:
-        print("Error fetching catalog:", e)
+        print("Unexpected error:", e)
         return jsonify({"error": "Failed to fetch Roblox catalog"}), 500
 
-
 if __name__ == "__main__":
-    # Render automatically sets PORT environment variable
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
