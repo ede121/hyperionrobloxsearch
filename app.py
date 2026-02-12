@@ -4,9 +4,7 @@ import os
 
 app = Flask(__name__)
 
-# ----------------------------
-# Roblox Toolbox API Backend
-# ----------------------------
+
 
 SEARCH_URL = "https://apis.roblox.com/toolbox-service/v1/marketplace/13"
 DETAILS_URL = "https://apis.roblox.com/toolbox-service/v1/items/details"
